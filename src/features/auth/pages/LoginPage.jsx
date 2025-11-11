@@ -99,13 +99,13 @@ const LoginPage = () => {
           />
         </div>
 
-        <div className="mb-6 relative">
+        <div className="mb-6 relative items-center">
           <label className="block text-white/75 text-sm mb-1" htmlFor="password">
             PASSWORD
           </label>
           <input
             id="password"
-            type={showPassword ? "text" : "password"} // <-- toggle type
+            type={showPassword ? "text" : "password"}
             autoComplete="off"
             placeholder="••••••••"
             value={password}
@@ -115,7 +115,7 @@ const LoginPage = () => {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+            className="absolute right-2 top-2/3 -translate-y-1/2 text-white/50 hover:text-white hover:scale-[1.09]"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
