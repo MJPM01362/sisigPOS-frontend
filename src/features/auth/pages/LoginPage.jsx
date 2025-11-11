@@ -4,6 +4,7 @@ import Spinner from "../../../components/common/Spinner";
 import api from "../../../services/api";
 import authService from "../../../services/authService";
 import AlertModal from "../components/AlertModal";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ const LoginPage = () => {
   const [backgroundClass, setBackgroundClass] = useState("");
   const navigate = useNavigate();
   const [isBgLoaded, setIsBgLoaded] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const user = authService.getUser();
@@ -97,19 +99,26 @@ const LoginPage = () => {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-white/75 text-sm mb-1" htmlFor="password">
             PASSWORD
           </label>
           <input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"} // <-- toggle type
             autoComplete="off"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full text-white p-2 border-b border-white/75 focus:outline-none"
+            className="w-full text-white p-2 border-b border-white/75 focus:outline-none pr-10"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
 
         <div className="flex justify-center mt-6">
