@@ -9,13 +9,15 @@ import {
 } from "recharts";
 
 const EarningsChart = ({ data }) => {
-  // Format data with day and date for tooltip display
-  const dayMap = ["S", "M", "T", "W", "T", "F", "S"];
-  const formattedData = data.map((entry, index) => ({
-    day: dayMap[index % 7],
-    earnings: entry.earnings || 0,
-    date: entry.date || "", // expect backend to include a "date" field
-  }));
+  const formattedData = data.map((entry) => {
+    const dateObj = new Date(entry.date);
+    const day = dateObj.toLocaleDateString("en-US", { weekday: "short" }).charAt(0);
+    return {
+      day,
+      earnings: entry.earnings || 0,
+      date: entry.date || "",
+    };
+  });
 
   return (
     <div className="bg-white rounded-2xl shadow p-4 h-full">
@@ -28,16 +30,16 @@ const EarningsChart = ({ data }) => {
           <XAxis dataKey="day" tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={(val) => `₱${val}`} />
           <Tooltip
-            formatter={(val, name, props) => [`₱${val.toFixed(2)}`, "Earnings"]}
+            formatter={(val) => [`₱${val.toFixed(2)}`, "Earnings"]}
             labelFormatter={(label, payload) => {
               const item = payload && payload[0]?.payload;
-              return item ? item.date : label; // show full date on hover
+              return item ? item.date : label;
             }}
           />
           <Bar
             dataKey="earnings"
             fill="#10b981"
-            radius={[6, 6, 0, 0]} // rounded top corners
+            radius={[6, 6, 0, 0]}
             barSize={24}
           />
         </BarChart>

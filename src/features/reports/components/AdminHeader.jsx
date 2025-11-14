@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { Wheat } from "lucide-react";
+import { Wheat, MoreVertical } from "lucide-react"; // <-- import vertical ellipsis
 import api from "../../../services/api";
 import authService from "../../../services/authService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import UserInfoModal from "../components/UserInfoModal"; // <-- import modal
+
 const AdminHeader = () => {
   const [admin, setAdmin] = useState(null);
   const [date, setDate] = useState("");
   const [lowStock, setLowStock] = useState({ products: [], rawMaterials: [] });
   const [showLowStockModal, setShowLowStockModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false); // <-- modal state
   const navigate = useNavigate();
   const [range, setRange] = useState("daily");
 
@@ -40,40 +43,9 @@ const AdminHeader = () => {
   const totalLowStock =
     (lowStock.products?.length || 0) + (lowStock.rawMaterials?.length || 0);
 
-    // inside AdminDashboardPage component
-const handleExport = async () => {
-  try {
-    // request as blob
-    const res = await api.get(`/reports/export?range=${range}`, {
-      responseType: "blob",
-    });
-
-    // create filename from response header or fallback
-    const contentDisposition = res.headers["content-disposition"];
-    let filename = `Sisig_ni_Law_Sales_Report_${range}_${new Date().toISOString().slice(0,10)}.xlsx`;
-    if (contentDisposition) {
-      const match = contentDisposition.match(/filename="(.+)"/);
-      if (match) filename = match[1];
-    }
-
-    const url = window.URL.createObjectURL(new Blob([res.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    toast.success("Excel report downloaded.");
-  } catch (err) {
-    console.error("❌ Export error:", err);
-    toast.error("Failed to export report.");
-  }
-};
-
   return (
     <div className="flex justify-between items-center h-full">
-      {/* 👋 Greeting and Date */}
+      {/* Greeting and Date */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-900">
           {admin ? `Welcome back, ${admin.name || "Admin"}!` : "Welcome, Admin!"}
@@ -81,9 +53,9 @@ const handleExport = async () => {
         <p className="text-gray-500 text-sm">{date}</p>
       </div>
 
-      {/* 🔔 Low Stock + Profile */}
+      {/* Low Stock + Profile */}
       <div className="flex items-center gap-6">
-        {/* Wheat icon with badge */}
+        {/* Wheat icon */}
         <div className="bg-white p-2 h-10 w-10 rounded-full flex items-center justify-center shadow">
           <button
             onClick={() => setShowLowStockModal(true)}
@@ -98,30 +70,8 @@ const handleExport = async () => {
           </button>
         </div>
 
-        {/* <div>
-  <select
-    className="border rounded px-3 py-1 text-sm text-black"
-    value={range}
-    onChange={(e) => setRange(e.target.value)}
-  >
-    <option value="daily">Today</option>
-    <option value="weekly">Last 7 Days</option>
-    <option value="monthly">Last 30 Days</option>
-    <option value="quarterly">Last 90 Days</option>
-    <option value="annual">Last 365 Days</option>
-  </select>
-
-  <button
-    onClick={handleExport}
-    className="ml-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-    title="Export detailed sales report as Excel"
-  >
-    Export Excel
-  </button>
-</div> */}
-
         {/* Profile */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative">
           <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center">
             {admin?.name
               ? admin.name.charAt(0).toUpperCase()
@@ -135,11 +85,22 @@ const handleExport = async () => {
               {admin?.email || "admin@example.com"}
             </p>
           </div>
+
+          {/* Vertical Ellipsis */}
+          <button
+            onClick={() => setShowUserModal(true)}
+            className="ml-2 p-2 rounded-full hover:bg-gray-100 transition"
+            title="View Profile"
+          >
+            <MoreVertical size={20} color="gray" />
+          </button>
         </div>
       </div>
 
-      {/* 🧾 Low Stock Modal */}
+      {/* Low Stock Modal */}
       {showLowStockModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          {showLowStockModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -220,6 +181,15 @@ const handleExport = async () => {
           </div>
         </div>
       )}
+        </div>
+      )}
+
+      {/* User Info Modal */}
+      <UserInfoModal
+        user={admin}
+        isOpen={showUserModal}
+        onClose={() => setShowUserModal(false)}
+      />
     </div>
   );
 };
